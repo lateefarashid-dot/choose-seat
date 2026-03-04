@@ -58,7 +58,9 @@ st.write(f"🎬 2D: {st.session_state.selected_2D or '-'}")
 if st.button("🔄 إعادة الاختيار"):
    st.session_state.selected_1D = None
    st.session_state.selected_2D = None
+   st.experimental_rerun()
    
 
-root.mainloop()
+
+
 
