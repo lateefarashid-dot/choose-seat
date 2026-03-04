@@ -1,106 +1,63 @@
-import tkinter as tk
-from tkinter import messagebox
-# إنشاء نافذة اللعبة
-root = tk.Tk()
-root.title("🎬 اختر مقعدك في السينما")
-root.geometry("500x650")
-root.config(bg="#2c2c2c")
+import streamlit as st
+st.set_page_config(page_title="Cinema Arrays", layout="centered")
+st.title("🎬اختر مقعدك في السينما ")
 # =========================
-# متغيرات تتبع الاختيار
+# تهيئة Session State
 # =========================
-selected_oneD = None
-selected_twoD = None
+if "selected_1D" not in st.session_state:
+   st.session_state.selected_1D = None
+if "selected_2D" not in st.session_state:
+   st.session_state.selected_2D = None
 # =========================
-# القسم الأول: أحادي البعد
+# القسم الأول: 1D
 # =========================
+st.header("🎟 القسم الأول ")
 oneD = ["VIP1", "VIP2", "VIP3", "VIP4"]
-oneD_buttons = {}
-def oneD_selected(index):
-   global selected_oneD
-   if selected_oneD is not None:
-       messagebox.showwarning("تنبيه", "🚫 يمكنك اختيار مقعد واحد فقط من القسم الأول")
-       return
-   seat = oneD[index]
-   oneD_buttons[index].config(bg="green", fg="white")
-   selected_oneD = seat
-   update_selection_label()
-   message = f"""✨ تم اختيار المقعد: {seat}
-📌 موقعه في المصفوفة:
-VIPsection[{index}]"""
-   messagebox.showinfo("مصفوفة أحادية البعد", message)
-label1 = tk.Label(root, text="🎟 القسم الأول:",
-                 font=("Arial", 14, "bold"),
-                 fg="yellow", bg="#2c2c2c")
-label1.pack(pady=10)
-frame1 = tk.Frame(root, bg="#2c2c2c")
-frame1.pack()
-for i in range(len(oneD)):
-   btn = tk.Button(frame1,
-                   text=oneD[i],
-                   width=7,
-                   height=2,
-                   font=("Arial", 12, "bold"),
-                   bg="#c41c1c",
-                   fg="white",
-                   command=lambda index=i: oneD_selected(index))
-   btn.grid(row=0, column=i, padx=8, pady=8)
-   oneD_buttons[i] = btn
+cols1 = st.columns(len(oneD))
+for i, seat in enumerate(oneD):
+   with cols1[i]:
+       if st.button(seat, key=f"1D_{i}"):
+           if st.session_state.selected_1D is None:
+               st.session_state.selected_1D = seat
+               st.success(f"تم اختيار {seat}")
+               st.code(f"VIPsection[{i}]")
+           else:
+               st.warning("🚫 يمكنك اختيار مقعد واحد فقط من القسم الأول")
+st.divider()
 # =========================
-# فاصل
+# القسم الثاني: 2D
 # =========================
-separator = tk.Label(root, text="-"*50, bg="#2c2c2c", fg="gray")
-separator.pack(pady=10)
-# =========================
-# القسم الثاني: ثنائي البعد
-# =========================
+st.header("🎬 القسم الثاني ")
 cinema = [
    ["A1", "A2", "A3", "A4"],
    ["B1", "B2", "B3", "B4"],
    ["C1", "C2", "C3", "C4"],
    ["D1", "D2", "D3", "D4"]
 ]
-buttons = {}
-def seat_selected(row, col):
-   global selected_twoD
-   if selected_twoD is not None:
-       messagebox.showwarning("تنبيه", "🚫 يمكنك اختيار مقعد واحد فقط من القسم الثاني")
-       return
-   seat = cinema[row][col]
-   buttons[(row, col)].config(bg="green", fg="white")
-   selected_twoD = seat
-   update_selection_label()
-   message = f"""✨ تم اختيار المقعد: {seat}
-📌 موقعه في المصفوفة:
-cinema[{row}][{col}]"""
-   messagebox.showinfo("مصفوفة ثنائية البعد", message)
-label2 = tk.Label(root, text="🎬 القسم الثاني:",
-                 font=("Arial", 14, "bold"),
-                 fg="lightblue", bg="#2c2c2c")
-label2.pack(pady=10)
-frame2 = tk.Frame(root, bg="#2c2c2c")
-frame2.pack()
-for i in range(len(cinema)):
-   for j in range(len(cinema[i])):
-       btn = tk.Button(frame2,
-                       text=cinema[i][j],
-                       width=6,
-                       height=2,
-                       font=("Arial", 11, "bold"),
-                       bg="#c41c1c",
-                       fg="white",
-                       command=lambda r=i, c=j: seat_selected(r, c))
-       btn.grid(row=i, column=j, padx=8, pady=8)
-       buttons[(i, j)] = btn
+for r, row in enumerate(cinema):
+   cols2 = st.columns(len(row))
+   for c, seat in enumerate(row):
+       with cols2[c]:
+           if st.button(seat, key=f"2D_{r}_{c}"):
+               if st.session_state.selected_2D is None:
+                   st.session_state.selected_2D = seat
+                   st.success(f"تم اختيار {seat}")
+                   st.code(f"cinema[{r}][{c}]")
+               else:
+                   st.warning("🚫 يمكنك اختيار مقعد واحد فقط من القسم الثاني")
+st.divider()
 # =========================
 # عرض الاختيارات
 # =========================
-selection_label = tk.Label(root,
-                          text="لم يتم اختيار مقاعد بعد",
-                          font=("Arial", 12, "bold"),
-                          fg="white",
-                          bg="#2c2c2c")
-selection_label.pack(pady=15)
-def update_selection_label():
-   text = f"🎟 VIP: {selected_oneD if selected_oneD else '-'}   |   🎬 قاعة: {selected_twoD if selected_twoD else '-'}"
-   selection_label.config(text=text)
+st.subheader("📋 اختياراتك:")
+st.write(f"🎟 1D: {st.session_state.selected_1D or '-'}")
+st.write(f"🎬 2D: {st.session_state.selected_2D or '-'}")
+# =========================
+# زر إعادة التعيين
+# =========================
+if st.button("🔄 إعادة الاختيار"):
+   st.session_state.selected_1D = None
+   st.session_state.selected_2D = None
+   st.experimental_rerun()
+
 root.mainloop()
